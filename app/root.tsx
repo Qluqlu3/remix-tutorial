@@ -2,8 +2,13 @@ import { Form, Link, Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration
 
 import type { LinksFunction } from '@remix-run/node';
 
-import { getContacts } from './data';
+import { getContacts, createEmptyContact } from './data';
 import appStylesHref from './app.css';
+
+export const action = async () => {
+  const contact = await createEmptyContact();
+  return json({ contact });
+};
 
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: appStylesHref }];
 
