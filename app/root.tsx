@@ -1,20 +1,34 @@
-import { Form, Link, Links, LiveReload, Meta, Outlet, Scripts, ScrollRestoration, json, useLoaderData } from '@remix-run/react';
+import {
+  Form,
+  Link,
+  Links,
+  LiveReload,
+  Meta,
+  NavLink,
+  Outlet,
+  Scripts,
+  ScrollRestoration,
+  json,
+  redirect,
+  useLoaderData,
+} from '@remix-run/react';
 
 import type { LinksFunction } from '@remix-run/node';
 
 import { getContacts, createEmptyContact } from './data';
 import appStylesHref from './app.css';
 
-export const action = async () => {
-  const contact = await createEmptyContact();
-  return json({ contact });
-};
-
 export const links: LinksFunction = () => [{ rel: 'stylesheet', href: appStylesHref }];
 
 export const loader = async () => {
   const contacts = await getContacts();
   return json({ contacts });
+};
+
+export const action = async () => {
+  const contact = await createEmptyContact();
+  // return json({ contact });
+  return redirect(`/contacts/${contact.id}/edit`);
 };
 
 export default function App() {
@@ -32,7 +46,13 @@ export default function App() {
           <h1>Remix Contacts</h1>
           <div>
             <Form id='search-form' role='search'>
-              <input id='q' aria-label='Search contacts' placeholder='Search' type='search' name='q' />
+              <input
+                id='q'
+                aria-label='Search contacts'
+                placeholder='Search'
+                type='search'
+                name='q'
+              />
               <div id='search-spinner' aria-hidden hidden={true} />
             </Form>
             <Form method='post'>
@@ -44,16 +64,23 @@ export default function App() {
               <ul>
                 {contacts.map((contact) => (
                   <li key={contact.id}>
-                    <Link to={`contacts/${contact.id}`}>
-                      {contact.first || contact.last ? (
-                        <>
-                          {contact.first} {contact.last}
-                        </>
-                      ) : (
-                        <i>No Name</i>
-                      )}{' '}
-                      {contact.favorite ? <span>★</span> : null}
-                    </Link>
+                    <NavLink
+                      className={({ isActive, isPending }) =>
+                        isActive ? 'active' : isPending ? 'pending' : ''
+                      }
+                      to={`contacts/${contact.id}`}
+                    >
+                      <Link to={`contacts/${contact.id}`}>
+                        {contact.first || contact.last ? (
+                          <>
+                            {contact.first} {contact.last}
+                          </>
+                        ) : (
+                          <i>No Name</i>
+                        )}{' '}
+                        {contact.favorite ? <span>★</span> : null}
+                      </Link>
+                    </NavLink>
                   </li>
                 ))}
               </ul>
